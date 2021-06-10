@@ -14,7 +14,13 @@ app.use(express.json());
 /*Enable Cors */
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE");
+    res.header("Access-Control-Allow-Headers", "*");
+    // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Methods', 'PATCH, PUT, GET,POST, DELETE');
+        return res.status(200).json({});
+    }
     next();
   });
 
@@ -102,7 +108,7 @@ app.patch('/lists/:listId/tasks/:taskId', (req, res) => {
     Task.findOneAndUpdate({ _id: req.params.taskId, _listId: req.params.listId}, {
         $set: req.body
     }).then(() => {
-        res.sendStatus(200)  
+        res.send({ message: 'Updated Succesfully'}) 
     })
 })
 

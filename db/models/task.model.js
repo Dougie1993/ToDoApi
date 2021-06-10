@@ -8,8 +8,12 @@ const TaskSchema = mongoose.Schema({
         trim: true
     },
     _listId: {
-        type: mongoose.Types.ObjectId,
+        type: mongoose.SchemaTypes.ObjectId,
         required: true
+    },
+    completed: {
+        type: Boolean,
+        default: false
     }
 })
 
