@@ -20,7 +20,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS, PUT, PATCH, DELETE");
     res.header("Access-Control-Allow-Headers", "*");
-    res.header("Access-Control-Expose-Headers", "x-access-token, x-refresh-token");
+    res.header("Access-Control-Expose-Headers", "x-access-token, x-refresh-token, _id");
     // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     if (req.method === 'OPTIONS') {
         res.header('Access-Control-Allow-Methods', 'PATCH, PUT, GET,POST, DELETE');
@@ -108,7 +108,7 @@ app.get('/lists',authenticate, (req, res) => {
     }).then((lists) => {
         res.send(lists)
     }).catch((e) => {
-        console.log('error')
+        res.send(e);
     })
     
 })
@@ -133,9 +133,10 @@ app.patch('/lists/:id', authenticate, (req, res) => {
     List.findOneAndUpdate({ _id: req.params.id, _userId: req.user_id}, { // the 2nd parametre is to make sure user updates their own list 
         $set: req.body
     }).then(() => {
-        res.sendStatus(200)  
+        res.send({
+            'message': 'Updated successfully'
+        })  
     })
-    
 })
 
 app.delete('/lists/:id', authenticate, (req, res) => {
@@ -177,7 +178,6 @@ app.post('/lists/:listId/tasks', authenticate, (req, res) => {
         if(list) {
             // list object is found and the userid matches
             // currect authenticated user can create tasks
-            console.log(list);
             return true;
         }
         // user object is undefined
@@ -211,7 +211,6 @@ app.patch('/lists/:listId/tasks/:taskId', authenticate, (req, res) => {
             //list found,specified user can update tasks in this list
             return true;
         }
-        console.log('list not found')
         return false;
     }).then((canUpdateTask) => {
         if (canUpdateTask) {
@@ -240,7 +239,6 @@ app.delete('/lists/:listId/tasks/:taskId', authenticate, (req, res) => {
             //list found,specified user can update tasks in this list
             return true;
         }
-        console.log('list not found')
         return false;
     }).then((canDeleteTask) => {
         if (canDeleteTask) {
@@ -274,7 +272,6 @@ app.post('/users', (req, res) => {
     }).then((refreshToken) => {
         // Session created successfully - refreshToken returned.
         // now we geneate an access auth token for the user
-        console.log('refresh token ' + refreshToken)
         return newUser.generateAccessAuthToken().then((accessToken) => {
             // access auth token generated successfully, now we return an object containing the auth tokens
             return { accessToken, refreshToken }
@@ -337,7 +334,7 @@ let deleteTasksFromList = (_listId) => {
     Task.deleteMany({
         _listId
     }).then(() => {
-        console.log('Tasks from ' + _listId + ' were deleted');
+        console.log('');
     })
 }
 app.listen(3000, () => {
