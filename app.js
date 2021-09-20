@@ -3,7 +3,7 @@ const app = express();
 const {mongoose} = require('./db/mongoose')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
-
+const port = process.env.PORT || 3000 //changed this from 3000 for production
 /*Load the mongoose models */
 const Task  = require('./db/models/task.model')
 const List = require('./db/models/list.model')
@@ -108,7 +108,7 @@ app.get('/lists',authenticate, (req, res) => {
     }).then((lists) => {
         res.send(lists)
     }).catch((e) => {
-        res.send(e);
+        res.sendStatus(405).send(e)
     })
     
 })
@@ -178,6 +178,7 @@ app.post('/lists/:listId/tasks', authenticate, (req, res) => {
         if(list) {
             // list object is found and the userid matches
             // currect authenticated user can create tasks
+            console.log(list);
             return true;
         }
         // user object is undefined
@@ -337,6 +338,7 @@ let deleteTasksFromList = (_listId) => {
         console.log('');
     })
 }
-app.listen(3000, () => {
+app.listen(port, () => {
     console.log('we on Port 3000'); 
 })
+ 
